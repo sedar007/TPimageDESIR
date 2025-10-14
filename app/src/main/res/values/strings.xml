@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TPimageDESIR</string>
+
+    <string name="title">TP5.1</string>
+
+    <string name="error_upload_image">Une erreur s\'est produite, impossible de charger l\'image</string>
+</resources>
