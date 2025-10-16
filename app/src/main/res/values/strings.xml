@@ -4,4 +4,11 @@
     <string name="title">TP5.1</string>
 
     <string name="error_upload_image">Une erreur s\'est produite, impossible de charger l\'image</string>
+    <string name="miroir_horizontal">Miroir horizontal</string>
+    <string name="miroir_vertical">miroir vertical</string>
+    <string name="error_no_image">Aucune image n\'a été chargée</string>
+    <string name="inverse_color">Inverser les couleurs</string>
+    <string name="gray_level">transformer en niveau gris</string>
+    <string name="rotate_90_right">Rotation horaire</string>
+    <string name="rotate_90_left">Rotation anti-horaire</string>
 </resources>

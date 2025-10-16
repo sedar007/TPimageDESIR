@@ -1,30 +1,28 @@
 package fr.ulco.tpimagedesir;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ImageLoader {
+
+    private final String LAUNCH_IMAGE_INPUT = "image/*";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        registerForContextMenu(getImageView()); // Ajoute le menu contextuel à l'ImageView
     }
 
     @Override
@@ -47,7 +46,81 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private ActivityResultLauncher<String> mGetResult = registerForActivityResult(
+    public void onImageUpload(View view){
+        mGetResult.launch(LAUNCH_IMAGE_INPUT);
+    }
+    
+    public void onImageReset(View view){
+        if(initialBitmap != null)
+            getImageView().setImageBitmap(initialBitmap);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        ImageView imageView = getImageView();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+
+        if(!isImageLoaded(bitmapDrawable)) {
+            return super.onOptionsItemSelected(item);
+        }
+
+        // Récupération du bitmap de l'image affichée dans l'ImageView
+        Bitmap bitmap = bitmapDrawable.getBitmap();
+        int id = item.getItemId();
+
+       // Récupération de l'identifiant de l'item dans la classe R
+        if (id == R.id.miroir_horizontal) {
+            imageView.setImageBitmap(ImageUtils.mirrorHorizontal(bitmap));
+            return true;
+        }
+        if(id == R.id.miroir_vertical) {
+            imageView.setImageBitmap(ImageUtils.mirrorVertical(bitmap));
+            return true;
+        }
+        if(id == R.id.rotate_90_right) {
+            imageView.setImageBitmap(ImageUtils.rotate90Right(bitmap));
+            return true;
+        }
+        if(id == R.id.rotate_90_left) {
+            imageView.setImageBitmap(ImageUtils.rotate90Left(bitmap));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Menu contextuel
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.contextuel_menu, menu);
+    }
+
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        ImageView imageView = getImageView();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+
+        if(!isImageLoaded(bitmapDrawable))
+            return super.onOptionsItemSelected(item);
+
+        // Récupération du bitmap de l'image affichée dans l'ImageView
+        Bitmap bitmap = bitmapDrawable.getBitmap();
+        int id = item.getItemId();
+
+        if (id == R.id.inverse_color) {
+            imageView.setImageBitmap(ImageUtils.inversionColors(bitmap));
+            return true;
+        }
+        if( id == R.id.gray_level) {
+            imageView.setImageBitmap(ImageUtils.grayLevel(bitmap));
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private final ActivityResultLauncher<String> mGetResult = registerForActivityResult(
             // classe de contrat pour une intention implicite
             new ActivityResultContracts.GetContent(),
             // callback pour une intention implicite
@@ -56,36 +129,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onActivityResult(Uri uri) {
                     if (uri == null) return;
                     showUri(uri);
-                    showImage(uri);
+                    loadImage(uri);
                 }// onActivityResult
             }// ActivityResultCallback
     );// registerForActivityResult
-
-    public void onImageUpload(View view){
-        System.out.println("On Image Upload");
-        mGetResult.launch("image/*");
-    }
-
-    private void showUri(Uri imageUri){
-        String uriString = imageUri.toString();
-        TextView textView = findViewById(R.id.uriTextView);
-        textView.setText(uriString);
-    }
-
-    private void showImage(Uri imageUri){
-        // ----- préparer les options de chargement de l’image
-        BitmapFactory.Options option = new BitmapFactory.Options();
-        option.inMutable = true; // l’image pourra ^etre modifi´ee
-        // ------ chargement de l’image - valeur retourn´ee null en cas d’erreur
-        try {
-            Bitmap bm = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, option);
-            ImageView imageView = findViewById(R.id.imageView);
-            imageView.setImageBitmap(bm);
-        }
-        catch (Exception e){
-            // Affiche un message d'erreur au user
-            Toast.makeText(this, getString(R.string.error_upload_image), Toast.LENGTH_SHORT).show();
-
-        }
-    }
 }

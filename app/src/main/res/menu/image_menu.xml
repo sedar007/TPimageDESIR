@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:theme="@style/Theme.TPimageDESIR" >
 
-    <item android:id="@+id/choix01"
-        android:title="totot" />
+    <item android:id="@+id/miroir_horizontal"
+        android:title="@string/miroir_horizontal" />
+
+    <item android:id="@+id/miroir_vertical"
+        android:title="@string/miroir_vertical" />
+
+    <item android:id="@+id/rotate_90_right"
+        android:title="@string/rotate_90_right" />
+
+    <item android:id="@+id/rotate_90_left"
+        android:title= "@string/rotate_90_left" />
+
 </menu>
